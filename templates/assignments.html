@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Manager Assignments</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="container">
+
+        <a class="back-button"
+           href="{{ url_for('admin_dashboard') }}">
+            ← Back to Dashboard
+        </a>
+
+
+        <div class="welcome">
+
+            <h1>Manager Assignments</h1>
+
+            <p>
+                Assign employees to their respective managers.
+            </p>
+
+        </div>
+
+
+        {% if message %}
+
+            <div class="message">
+                {{ message }}
+            </div>
+
+        {% endif %}
+
+
+        <!-- ASSIGNMENT FORM -->
+
+        <div class="card">
+
+            <h2>Assign Employee to Manager</h2>
+
+            <p>
+                Select a manager and an employee to create an assignment.
+            </p>
+
+
+            <form method="POST">
+
+                <label for="manager_id">
+                    Manager
+                </label>
+
+                <select name="manager_id"
+                        id="manager_id"
+                        required>
+
+                    <option value="">
+                        Select Manager
+                    </option>
+
+                    {% for manager in managers %}
+
+                        <option value="{{ manager['id'] }}">
+                            {{ manager['name'] }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <label for="employee_id">
+                    Employee
+                </label>
+
+                <select name="employee_id"
+                        id="employee_id"
+                        required>
+
+                    <option value="">
+                        Select Employee
+                    </option>
+
+                    {% for employee in employees %}
+
+                        <option value="{{ employee['id'] }}">
+                            {{ employee['name'] }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <button type="submit">
+                    Assign Employee →
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- CURRENT ASSIGNMENTS -->
+
+        <div class="card">
+
+            <h2>Current Assignments</h2>
+
+            {% if assignments %}
+
+            <table>
+
+                <tr>
+
+                    <th>Manager</th>
+
+                    <th>Employee</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+
+                {% for assignment in assignments %}
+
+                <tr>
+
+                    <td>
+                        {{ assignment["manager_name"] }}
+                    </td>
+
+                    <td>
+                        {{ assignment["employee_name"] }}
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'delete_assignment',
+                                assignment_id=assignment['id']
+                            ) }}"
+                            onclick="return confirm('Remove this assignment?')"
+                            style="color: #dc2626; text-decoration: none; font-weight: 600;"
+                        >
+                            Remove
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+                <p class="no-data">
+                    No manager assignments have been created yet.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

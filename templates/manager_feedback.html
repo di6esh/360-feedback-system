@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Manager Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a class="logout"
+           href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="container">
+
+        <div class="welcome">
+
+            <h1>Manager Dashboard</h1>
+
+            <p>
+                Welcome, {{ name }}
+            </p>
+
+        </div>
+
+
+        <!-- QUICK INFO -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-title">
+                    Assigned Employees
+                </div>
+
+                <div class="stat-value">
+                    {{ employees|length }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-title">
+                    My Feedback
+                </div>
+
+                <div class="stat-value">
+                    {{ total_feedback }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ASSIGNED EMPLOYEES -->
+
+        <div class="welcome" style="margin-top: 30px;">
+
+            <h2>My Assigned Employees</h2>
+
+            <p>
+                Review your assigned employees and provide feedback.
+            </p>
+
+        </div>
+
+
+        {% if employees %}
+
+            <div class="cards">
+
+                {% for employee in employees %}
+
+                    <div class="card">
+
+                        <h3>
+                            👤 {{ employee["name"] }}
+                        </h3>
+
+                        <p>
+                            {{ employee["email"] }}
+                        </p>
+
+                        <a
+                            class="button"
+                            href="{{ url_for(
+                                'manager_feedback',
+                                employee_id=employee['id']
+                            ) }}"
+                        >
+                            Give Feedback →
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="card">
+
+                <h3>No Employees Assigned</h3>
+
+                <p>
+                    The administrator has not assigned any employees
+                    to you yet.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- MANAGER'S OWN FEEDBACK -->
+
+        <div class="welcome" style="margin-top: 40px;">
+
+            <h2>My Feedback</h2>
+
+            <p>
+                Feedback received from your colleagues.
+            </p>
+
+        </div>
+
+
+        {% if feedback %}
+
+            <div class="cards">
+
+                {% for item in feedback %}
+
+                    <div class="card">
+
+                        <h3>
+                            📋 From: Anonymous
+                        </h3>
+
+                        <p>
+                            <strong>Rating:</strong>
+                            ⭐ {{ item["rating"] }} / 5
+                        </p>
+
+                        <p>
+                            <strong>Type:</strong>
+                            {{ item["feedback_type"]|capitalize }}
+                        </p>
+
+                        <p>
+                            <strong>Comment:</strong>
+                            {{ item["comment"] }}
+                        </p>
+
+                        <p>
+                            <strong>Date:</strong>
+                            {{ item["created_at"] }}
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="card">
+
+                <h3>📋 No Feedback Yet</h3>
+
+                <p>
+                    Feedback given to you by your peers will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+        <div style="margin-top: 20px;">
+
+            <a class="button"
+               href="{{ url_for('my_feedback') }}">
+                View All Feedback →
+            </a>
+
+            <a class="button"
+               href="{{ url_for('download_report') }}">
+                Download Report →
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

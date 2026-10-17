@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Reports</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a class="logout"
+           href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="container">
+
+        <a class="back-button"
+           href="{{ url_for('admin_dashboard') }}">
+            ← Back to Dashboard
+        </a>
+
+
+        <div class="welcome">
+
+            <h1>Employee Feedback Reports</h1>
+
+            <p>
+                View employee ratings and feedback received from managers and peers.
+            </p>
+
+        </div>
+
+
+        <!-- EMPLOYEE SUMMARY -->
+
+        <div class="card">
+
+            <h2>Employee Summary</h2>
+
+            {% if employees %}
+
+            <table>
+
+                <tr>
+
+                    <th>Employee</th>
+
+                    <th>Email</th>
+
+                    <th>Overall Rating</th>
+
+                    <th>Total Feedback</th>
+
+                </tr>
+
+
+                {% for employee in employees %}
+
+                <tr>
+
+                    <td>
+                        {{ employee["name"] }}
+                    </td>
+
+                    <td>
+                        {{ employee["email"] }}
+                    </td>
+
+                    <td class="rating">
+
+                        {% if employee["total_feedback"] > 0 %}
+
+                            ★ {{ "%.2f"|format(employee["average_rating"]) }} / 5
+
+                        {% else %}
+
+                            No ratings yet
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ employee["total_feedback"] }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+                <p class="no-data">
+                    No employees found.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- DETAILED FEEDBACK -->
+
+        <div class="card">
+
+            <h2>Detailed Feedback</h2>
+
+            {% if feedback %}
+
+            <table>
+
+                <tr>
+
+                    <th>Employee</th>
+
+                    <th>From</th>
+
+                    <th>Type</th>
+
+                    <th>Rating</th>
+
+                    <th>Comment</th>
+
+                    <th>Date</th>
+
+                </tr>
+
+
+                {% for item in feedback %}
+
+                <tr>
+
+                    <td>
+                        {{ item["employee_name"] }}
+                    </td>
+
+                    <td>
+                        {{ item["from_name"] }}
+                    </td>
+
+                    <td>
+
+                        {% if item["feedback_type"] == "manager" %}
+
+                            <span class="badge manager">
+                                Manager
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge peer">
+                                Peer
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td class="rating">
+
+                        ★ {{ item["rating"] }} / 5
+
+                    </td>
+
+                    <td>
+                        {{ item["comment"] }}
+                    </td>
+
+                    <td>
+                        {{ item["created_at"] }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+                <p class="no-data">
+                    No feedback has been submitted yet.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

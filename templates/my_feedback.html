@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Feedback</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        .feedback-header {
+            margin-bottom: 25px;
+        }
+
+        .feedback-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .feedback-header p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-title {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            color: #172033;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .rating-large {
+            color: #d97706;
+        }
+
+        .section-title {
+            margin: 0 0 18px;
+            color: #172033;
+        }
+
+        .feedback-card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .feedback-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .feedback-top h3 {
+            margin: 0 0 5px;
+            color: #172033;
+        }
+
+        .feedback-date {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .feedback-rating {
+            color: #d97706;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .feedback-comment {
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 7px;
+            color: #374151;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .report-action {
+            margin-bottom: 30px;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 35px;
+            text-align: center;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .empty-state h3 {
+            margin-top: 0;
+            color: #172033;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+        @media (max-width: 600px) {
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .feedback-top {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a class="logout"
+           href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="container">
+
+        <div class="feedback-header">
+
+            <h1>My Feedback</h1>
+
+            <p>
+                Feedback received by {{ name }}
+            </p>
+
+        </div>
+
+
+        <!-- PDF REPORT -->
+
+        <div class="report-action">
+
+            <a
+                class="button"
+                href="{{ url_for('download_report') }}"
+            >
+                📄 Download PDF Report
+            </a>
+
+        </div>
+
+
+        <!-- SUMMARY -->
+
+        <div class="summary">
+
+            <div class="summary-card">
+
+                <div class="summary-title">
+                    Overall Rating
+                </div>
+
+                <div class="summary-value rating-large">
+
+                    {% if average_rating %}
+
+                        ★ {{ "%.2f"|format(average_rating) }} / 5
+
+                    {% else %}
+
+                        No ratings yet
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-title">
+                    Total Feedback
+                </div>
+
+                <div class="summary-value">
+                    {{ total_feedback }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FEEDBACK LIST -->
+
+        <h2 class="section-title">
+            Feedback Received
+        </h2>
+
+
+        {% if feedback %}
+
+            {% for item in feedback %}
+
+                <div class="feedback-card">
+
+                    <div class="feedback-top">
+
+                        <div>
+
+                            <h3>
+                                From: Anonymous
+                            </h3>
+
+                            {% if item["feedback_type"] == "manager" %}
+
+                                <span class="badge manager">
+                                    Manager Feedback
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge peer">
+                                    Peer Feedback
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="feedback-rating">
+
+                            ★ {{ item["rating"] }} / 5
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="feedback-comment">
+
+                        {{ item["comment"] }}
+
+                    </div>
+
+
+                    <div class="feedback-date"
+                         style="margin-top: 12px;">
+
+                        {{ item["created_at"] }}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>No Feedback Yet</h3>
+
+                <p>
+                    You have not received any feedback yet.
+                    Once your manager or peers submit feedback,
+                    it will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</body>
+
+</html>

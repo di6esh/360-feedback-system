@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Employee Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a class="logout"
+           href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="container">
+
+        <!-- WELCOME -->
+
+        <div class="welcome">
+
+            <h1>Employee Dashboard</h1>
+
+            <p>
+                Welcome, {{ name }}
+            </p>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="cards">
+
+            <!-- MY FEEDBACK -->
+
+            <div class="card">
+
+                <h3>📋 My Feedback</h3>
+
+                <p>
+                    View feedback and ratings received from your
+                    manager and peers.
+                </p>
+
+                <a class="button"
+                   href="{{ url_for('my_feedback') }}">
+                    View Feedback →
+                </a>
+
+            </div>
+
+
+            <!-- PDF REPORT -->
+
+            <div class="card">
+
+                <h3>📄 Feedback Report</h3>
+
+                <p>
+                    Download your complete feedback report as a PDF.
+                </p>
+
+                <a class="button"
+                   href="{{ url_for('download_report') }}">
+                    Download Report →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- GIVE FEEDBACK SECTION -->
+
+        <div class="welcome"
+             style="margin-top: 35px;">
+
+            <h2>Give Feedback</h2>
+
+            <p>
+                Give feedback to your colleagues or manager.
+            </p>
+
+        </div>
+
+
+        {% if employees %}
+
+            <div class="cards">
+
+                {% for employee in employees %}
+
+                    <div class="card">
+
+                        <!-- PERSON NAME -->
+
+                        <h3>
+                            👤 {{ employee["name"] }}
+                        </h3>
+
+
+                        <!-- ROLE -->
+
+                        {% if employee["role"] == "manager" %}
+
+                            <span class="badge manager">
+                                Manager
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge peer">
+                                Employee
+                            </span>
+
+                        {% endif %}
+
+
+                        <!-- EMAIL -->
+
+                        <p>
+                            {{ employee["email"] }}
+                        </p>
+
+
+                        <!-- FEEDBACK BUTTON -->
+
+                        <a class="button"
+                           href="{{ url_for(
+                               'employee_feedback',
+                               employee_id=employee['id']
+                           ) }}">
+                            Give Feedback →
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="card">
+
+                <h3>No Feedback Targets</h3>
+
+                <p>
+                    No colleagues or managers are currently available
+                    for peer feedback.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</body>
+
+</html>

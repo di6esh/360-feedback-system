@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a class="logout"
+           href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="welcome">
+
+            <h1>{{ title }}</h1>
+
+            <p>
+                Welcome, {{ name }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Dashboard</h2>
+
+            <p>
+                Your role:
+                <strong>{{ role }}</strong>
+            </p>
+
+            <p>
+                This dashboard is currently available as a general
+                fallback page.
+            </p>
+
+            <a class="button"
+               href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <h2>360° Feedback System</h2>
+
+        <a class="logout"
+           href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="welcome">
+
+            <h1>HR / Admin Dashboard</h1>
+
+            <p>
+                Welcome, {{ name }}
+            </p>
+
+        </div>
+
+
+        <div class="cards">
+
+            <!-- MANAGE USERS -->
+
+            <div class="card">
+
+                <h3>👥 Manage Users</h3>
+
+                <p>
+                    Add and manage managers and employees.
+                </p>
+
+                <a class="button"
+                   href="{{ url_for('manage_users') }}">
+                    Manage Users →
+                </a>
+
+            </div>
+
+
+            <!-- MANAGER ASSIGNMENTS -->
+
+            <div class="card">
+
+                <h3>🔗 Manager Assignments</h3>
+
+                <p>
+                    Assign employees to their respective managers.
+                </p>
+
+                <a class="button"
+                   href="{{ url_for('assignments') }}">
+                    Assign Employees →
+                </a>
+
+            </div>
+
+
+            <!-- REPORTS -->
+
+            <div class="card">
+
+                <h3>📊 Reports</h3>
+
+                <p>
+                    View employee feedback and overall performance.
+                </p>
+
+                <a class="button"
+                   href="{{ url_for('admin_reports') }}">
+                    View Reports →
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
