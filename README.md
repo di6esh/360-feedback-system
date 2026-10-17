@@ -1,45 +1,44 @@
 # 360° Feedback System
 
-A lightweight web application for collecting, viewing, and reporting
-employee feedback from managers and peers. Built with Python, Flask,
-HTML, CSS, and SQLite.
+A web-based employee feedback and performance reporting system built using Python, Flask, HTML, CSS, and SQLite.
 
-## Overview
+## 📌 About the Project
 
-The 360° Feedback System brings feedback into one place. It supports
-three roles---Admin, Manager, and Employee---with different permissions
-for each role.
+The 360° Feedback System is designed to simplify employee feedback management by bringing manager feedback and peer feedback into one centralized platform.
 
-## Features
+The system supports three roles: **Admin, Manager, and Employee**. It allows users to submit ratings and comments, view received feedback, calculate overall ratings, and download feedback reports as PDF files.
 
--   Role-based login with separate dashboards.
--   Admin can add/manage users and assign employees to managers.
--   Managers can rate assigned employees from 1--5 and add written
-    comments.
--   Employees can give peer feedback to other employees and managers,
-    but cannot rate themselves.
--   Users can view feedback they have received.
--   Calculates the average of received ratings.
--   Generates downloadable PDF feedback reports.
+## ✨ Features
 
-## Technology Stack
+- **Role-Based Login:** Separate dashboards for Admin, Manager, and Employee.
+- **User Management:** Admin can add and manage users.
+- **Manager Assignment:** Admin can assign employees to managers.
+- **Manager Feedback:** Managers can rate assigned employees and provide written comments.
+- **Peer Feedback:** Employees can provide feedback to other employees and managers.
+- **Feedback History:** Users can view the feedback they receive.
+- **Automatic Rating Calculation:** Calculates the average of received ratings.
+- **PDF Report Generation:** Generates downloadable feedback reports.
+- **Database Storage:** Stores user details, assignments, ratings, and comments.
 
-  Component               Technology
-  ----------------------- ------------------
-  Programming language    Python
-  Backend                 Flask
-  Frontend                HTML, CSS
-  Template engine         Jinja2
-  Database                SQLite
-  Database connectivity   Python `sqlite3`
-  PDF generation          ReportLab
+## 🛠️ Technology Stack
 
-## Project Structure
+| Component | Technology |
+|---|---|
+| Programming Language | Python |
+| Backend Framework | Flask |
+| Frontend | HTML, CSS |
+| Template Engine | Jinja2 |
+| Database | SQLite |
+| Database Connectivity | Python `sqlite3` |
+| PDF Generation | ReportLab |
 
-``` text
+## 📂 Project Structure
+
+```text
 360-feedback-system/
 ├── app.py
-├── database.db
+├── README.md
+├── requirements.txt
 ├── templates/
 │   ├── login.html
 │   ├── admin_dashboard.html
@@ -55,137 +54,142 @@ for each role.
     └── style.css
 ```
 
-Your local project may contain additional files. Keep the `templates`
-and `static` folder names because Flask uses them to locate HTML and CSS
-files.
+*Note: The SQLite database is created or used by the application locally. The virtual environment and local database should not be uploaded to GitHub.*
 
-## Getting Started
+## 🚀 Installation and Setup
 
-### 1. Install Python
+### Prerequisites
 
-Install Python 3 if it is not already installed.
+- Python 3
+- pip
 
-### 2. Clone or download the repository
+### 1. Clone the Repository
 
-``` bash
+```bash
 git clone <YOUR-GITHUB-REPOSITORY-URL>
 cd 360-feedback-system
 ```
 
-Or download the repository as a ZIP file and extract it.
+Replace the placeholder URL with your repository's actual URL.
 
-### 3. Install dependencies
+### 2. Install Dependencies
 
-``` bash
+```bash
+python -m pip install -r requirements.txt
+```
+
+If you do not have a `requirements.txt` file, install the dependencies directly:
+
+```bash
 python -m pip install Flask reportlab
 ```
 
-### 4. Run the application
+### 3. Run the Application
 
-``` bash
+```bash
 python app.py
 ```
 
-Open the URL shown in the terminal, usually:
+Open the following address in your browser:
 
-``` text
+```text
 http://127.0.0.1:5000
 ```
 
-The application initializes the database and creates a default Admin
-account if it does not already exist.
+The application initializes the SQLite database and creates a default Admin account if one does not already exist.
 
-## User Roles
+## 👥 User Roles
 
 ### Admin
-
--   Add and manage users.
--   Assign employees to managers.
--   View feedback reports.
+- Add and manage users.
+- Assign employees to managers.
+- View feedback reports.
 
 ### Manager
-
--   View assigned employees.
--   Submit ratings and written feedback for assigned employees.
--   View feedback received from colleagues.
+- View assigned employees.
+- Provide ratings and written feedback to assigned employees.
+- View feedback received from colleagues.
 
 ### Employee
+- Give feedback to other employees and managers.
+- View received feedback and overall ratings.
+- Download a feedback report as a PDF.
 
--   Give peer feedback to other employees and managers.
--   View received feedback and the overall rating.
--   Download a PDF feedback report.
+## 🧮 Rating Calculation
 
-## Rating Calculation
+The system calculates the overall rating using the arithmetic mean of all ratings received.
 
-The overall rating is the arithmetic mean of the ratings received.
+**Example:**
 
-Example: if a person receives ratings of 4 and 5:
+If an employee receives ratings of 4 and 5:
 
-``` text
-Overall rating = (4 + 5) / 2 = 4.5 out of 5
+```text
+Overall Rating = (4 + 5) / 2
+               = 4.5 / 5
 ```
 
-## Database Tables
+## 🗄️ Database Design
 
-  -----------------------------------------------------------------------
-  Table                               Purpose
-  ----------------------------------- -----------------------------------
-  `users`                             Stores user names, email addresses,
-                                      passwords, and roles.
+The application uses three main SQLite tables.
 
-  `manager_assignments`               Stores manager--employee
-                                      assignments.
+| Table | Purpose |
+|---|---|
+| `users` | Stores user names, email addresses, passwords, and roles. |
+| `manager_assignments` | Stores manager–employee assignment details. |
+| `feedback` | Stores feedback sender, receiver, rating, comment, feedback type, and timestamp. |
 
-  `feedback`                          Stores sender, receiver, rating,
-                                      comment, feedback type, and
-                                      timestamp.
-  -----------------------------------------------------------------------
+## 📱 Access from a Phone on the Same Wi-Fi
 
-## Access from a Phone on the Same Wi-Fi
+For local testing, configure Flask to listen on your laptop's network interface:
 
-For local testing, configure Flask to listen on your laptop's network
-interface:
-
-``` python
+```python
 app.run(host="0.0.0.0", port=5000, debug=True)
 ```
 
-Find your laptop's local IPv4 address and open
-`http://YOUR-LAPTOP-IP:5000` on your phone while both devices are
-connected to the same Wi-Fi network.
+Find your laptop's local IPv4 address and open the following address on your phone:
 
-This is for local testing only. Do not expose Flask's development server
-to the public internet.
+```text
+http://YOUR-LAPTOP-IP:5000
+```
 
-## Security Notes
+Both devices must be connected to the same Wi-Fi network.
 
-This is a learning/college project, not a production-ready HR system.
+**Security note:** This configuration is intended for local testing only. Do not expose Flask's development server to the public internet.
 
--   The current implementation uses simple password storage. Implement
-    password hashing before using it with real users.
--   Use a strong secret key loaded from environment variables.
--   Turn off Flask debug mode outside local development.
--   Add CSRF protection, input validation, and stronger access controls
-    before production use.
--   Do not publish a real `database.db` containing personal information
-    or passwords to GitHub.
+## 🔮 Future Enhancements
 
-## Future Enhancements
+- Password hashing and improved security.
+- Anonymous feedback and email notifications.
+- Feedback categories for teamwork, communication, and leadership.
+- Graphical analytics and advanced reports.
+- Cloud deployment and support for larger databases.
+- Improved access control and employee development recommendations.
 
--   Password hashing and improved security.
--   Anonymous feedback and email notifications.
--   Feedback categories such as communication, teamwork, and leadership.
--   Charts and advanced analytics.
--   Cloud deployment and support for a larger database.
+## 🎯 Learning Outcomes
 
-## Learning Outcomes
+This project demonstrates:
 
-This project demonstrates: - Building a web application with Flask. -
-Creating HTML templates with Jinja2. - Connecting Python to SQLite. -
-Implementing role-based access and validation checks. - Calculating
-ratings from database records. - Generating PDF reports with ReportLab.
+- Web application development using Flask.
+- Dynamic HTML rendering using Jinja2.
+- Database operations using SQLite.
+- Role-based access control and feedback validation.
+- Average rating calculation.
+- PDF report generation using ReportLab.
 
-## License
+## 🔐 Security Considerations
 
-No license has been specified yet. Add a license file if you want others
-to reuse, modify, or distribute this project under defined terms.
+This project is intended for learning and academic purposes.
+
+- Implement password hashing before using real user accounts.
+- Use a strong secret key stored in environment variables.
+- Disable Flask debug mode outside local development.
+- Add CSRF protection and stronger security controls before production use.
+- Do not commit databases containing personal information or passwords.
+
+## 📄 License
+
+No license has been specified yet. Add a license file if you want others to reuse, modify, or distribute this project under defined terms.
+
+---
+
+**Developed as a college project to demonstrate a simple and centralized employee feedback management system.**
