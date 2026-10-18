@@ -186,6 +186,28 @@ This project is intended for learning and academic purposes.
 - Add CSRF protection and stronger security controls before production use.
 - Do not commit databases containing personal information or passwords.
 
+## 🧰 Troubleshooting
+
+### Missing Dependencies
+If the application reports a missing Python module, install the project dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### Application Does Not Start
+- Confirm that Python 3 is installed.
+- Run the command from the project directory.
+- Check the terminal output for missing modules or configuration errors.
+
+### Database Issues
+- Check that the application has permission to create or access its SQLite database.
+- Review the terminal output for database initialization errors.
+
+### Local Access
+The default local address is `http://127.0.0.1:5000`. Confirm that the Flask application started successfully before opening it in your browser.
+
+
 ## 📄 License
 
 No license has been specified yet. Add a license file if you want others to reuse, modify, or distribute this project under defined terms.
