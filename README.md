@@ -20,13 +20,6 @@ The system supports three roles: **Admin, Manager, and Employee**. It allows use
 - **PDF Report Generation:** Generates downloadable feedback reports.
 - **Database Storage:** Stores user details, assignments, ratings, and comments.
 
-## ✨ Key Features
-
-- Collect employee and peer feedback.
-- Calculate performance ratings from submitted feedback.
-- Generate PDF reports for performance review.
-- Provide a centralized system for managing feedback.
-
 ## 🛠️ Technology Stack
 
 | Component | Technology |
