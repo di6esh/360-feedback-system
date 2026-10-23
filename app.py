@@ -1,14 +1,51 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from datetime import date
 import sqlite3
 from io import BytesIO
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from reportlab.pdfgen import canvas
-from textwrap import wrap
+from reportlab.lib.colors import HexColor
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 app = Flask(__name__)
 
 app.secret_key = "360-feedback-secret-key"
 
 DATABASE = "database.db"
+
+
+def wrap_pdf_text(text, font_name, font_size, max_width):
+    words = str(text or "").split()
+    if not words:
+        return ["No comment provided."]
+
+    lines = []
+    current_line = ""
+
+    for word in words:
+        parts = []
+        while stringWidth(word, font_name, font_size) > max_width:
+            split_at = 1
+            while split_at < len(word) and stringWidth(
+                word[:split_at + 1], font_name, font_size
+            ) <= max_width:
+                split_at += 1
+            parts.append(word[:split_at])
+            word = word[split_at:]
+        parts.append(word)
+
+        for part in parts:
+            candidate = f"{current_line} {part}".strip()
+            if current_line and stringWidth(candidate, font_name, font_size) > max_width:
+                lines.append(current_line)
+                current_line = part
+            else:
+                current_line = candidate
+
+    if current_line:
+        lines.append(current_line)
+
+    return lines
 
 
 # =========================================================
@@ -728,158 +765,196 @@ def download_report():
 
     conn.close()
 
-    # Create PDF in memory
-
     pdf_file = BytesIO()
+    width, height = A4
+    pdf = canvas.Canvas(pdf_file, pagesize=A4)
+    margin = 48
+    content_bottom = 55
+    navy = HexColor("#172554")
+    teal = HexColor("#0F766E")
+    ink = HexColor("#1E293B")
+    muted = HexColor("#64748B")
+    border = HexColor("#E2E8F0")
+    pale = HexColor("#F8FAFC")
+    gold = HexColor("#B45309")
+    page_number = 1
 
-    pdf = canvas.Canvas(pdf_file)
+    def draw_page_chrome(continued=False):
+        pdf.setFillColor(navy)
+        pdf.rect(0, height - 120, width, 120, fill=1, stroke=0)
+        pdf.setFillColor(HexColor("#5EEAD4"))
+        pdf.setFont("Helvetica-Bold", 9)
+        pdf.drawString(margin, height - 35, "360 FEEDBACK")
 
-    width, height = 595, 842
+        pdf.setFillColor(HexColor("#FFFFFF"))
+        if continued:
+            pdf.setFont("Helvetica-Bold", 16)
+            pdf.drawString(margin, height - 65, "360 Degree Feedback Report")
+            pdf.setFillColor(HexColor("#CBD5E1"))
+            pdf.setFont("Helvetica", 9)
+            pdf.drawString(margin, height - 83, "Feedback details continued")
+            body_top = height - 140
+        else:
+            pdf.setFont("Helvetica-Bold", 23)
+            pdf.drawString(margin, height - 67, "360 Degree Feedback Report")
+            pdf.setFillColor(HexColor("#CBD5E1"))
+            pdf.setFont("Helvetica", 10)
+            pdf.drawString(margin, height - 88, "PERSONAL FEEDBACK SUMMARY")
+            body_top = height - 140
 
-    y = height - 50
+        pdf.setStrokeColor(border)
+        pdf.setLineWidth(0.7)
+        pdf.line(margin, 40, width - margin, 40)
+        pdf.setFillColor(muted)
+        pdf.setFont("Helvetica", 8)
+        pdf.drawString(margin, 27, "CONFIDENTIAL - FOR PERSONAL DEVELOPMENT")
+        pdf.drawRightString(width - margin, 27, f"Page {page_number}")
+        return body_top
 
-    # Title
+    def next_page():
+        nonlocal page_number
+        pdf.showPage()
+        page_number += 1
+        return draw_page_chrome(continued=True)
 
-    pdf.setFont("Helvetica-Bold", 20)
-
-    pdf.drawString(
-        50,
-        y,
-        "360 Degree Feedback Report"
-    )
-
-    y -= 35
-
-    pdf.setFont("Helvetica", 12)
-
-    pdf.drawString(
-        50,
-        y,
-        "Name: " + session["name"]
-    )
-
-    y -= 25
+    y = draw_page_chrome()
+    generated_date = date.today().strftime("%B %d, %Y")
+    pdf.setFillColor(muted)
+    pdf.setFont("Helvetica-Bold", 8)
+    pdf.drawString(margin, y, "REPORT FOR")
+    pdf.drawRightString(width - margin, y, f"GENERATED {generated_date.upper()}")
+    y -= 24
+    pdf.setFillColor(ink)
+    pdf.setFont("Helvetica-Bold", 19)
+    pdf.drawString(margin, y, session["name"])
+    y -= 15
+    pdf.setFillColor(muted)
+    pdf.setFont("Helvetica", 9)
+    pdf.drawString(margin, y, "Your feedback at a glance")
 
     average = result["average_rating"]
+    average_text = "N/A" if average is None else f"{average:.2f} / 5"
+    total_feedback = result["total_feedback"]
+    card_y = y - 90
+    card_width = (width - 2 * margin - 20) / 3
+    summary_cards = [
+        ("OVERALL RATING", average_text, average),
+        ("TOTAL FEEDBACK", str(total_feedback), None),
+        ("LATEST FEEDBACK", str(feedback[0]["created_at"])[:10] if feedback else "None yet", None),
+    ]
 
-    if average is None:
-        average_text = "No ratings yet"
-    else:
-        average_text = f"{average:.2f} / 5"
-
-    pdf.drawString(
-        50,
-        y,
-        "Overall Rating: " + average_text
-    )
-
-    y -= 25
-
-    pdf.drawString(
-        50,
-        y,
-        "Total Feedback: " + str(result["total_feedback"])
-    )
-
-    y -= 40
-
-    pdf.setFont("Helvetica-Bold", 14)
-
-    pdf.drawString(
-        50,
-        y,
-        "Feedback Received"
-    )
-
-    y -= 30
-
-    pdf.setFont("Helvetica", 10)
-
-    if not feedback:
-
-        pdf.drawString(
-            50,
-            y,
-            "No feedback has been received yet."
-        )
-
-    else:
-
-        for item in feedback:
-
-            if y < 100:
-
-                pdf.showPage()
-
-                y = height - 50
-
-                pdf.setFont("Helvetica", 10)
-
-            pdf.setFont("Helvetica-Bold", 11)
-
-            pdf.drawString(
-                50,
-                y,
-                "From: Anonymous"
-            )
-
-            y -= 18
-
-            pdf.setFont("Helvetica", 10)
-
-            pdf.drawString(
-                50,
-                y,
-                "Type: " + item["feedback_type"]
-            )
-
-            y -= 18
-
-            pdf.drawString(
-                50,
-                y,
-                "Rating: " + str(item["rating"]) + " / 5"
-            )
-
-            y -= 18
-
-            pdf.drawString(
-                50,
-                y,
-                "Date: " + str(item["created_at"])
-            )
-
-            y -= 18
-
-            pdf.drawString(
-                50,
-                y,
-                "Comment:"
-            )
-
-            y -= 15
-
-            # Wrap long comments
-
-            for line in wrap(item["comment"], 85):
-
-                if y < 60:
-
-                    pdf.showPage()
-
-                    y = height - 50
-
-                    pdf.setFont("Helvetica", 10)
-
-                pdf.drawString(
-                    60,
-                    y,
-                    line
+    for index, (label, value, rating) in enumerate(summary_cards):
+        x = margin + index * (card_width + 10)
+        pdf.setFillColor(pale)
+        pdf.setStrokeColor(border)
+        pdf.roundRect(x, card_y, card_width, 76, 8, fill=1, stroke=1)
+        pdf.setFillColor(muted)
+        pdf.setFont("Helvetica-Bold", 7.5)
+        pdf.drawString(x + 12, card_y + 57, label)
+        pdf.setFillColor(ink)
+        pdf.setFont("Helvetica-Bold", 17 if index != 2 else 13)
+        pdf.drawString(x + 12, card_y + 31, value)
+        if rating is not None:
+            bar_x = x + 12
+            bar_y = card_y + 14
+            bar_width = card_width - 24
+            pdf.setFillColor(border)
+            pdf.roundRect(bar_x, bar_y, bar_width, 5, 2, fill=1, stroke=0)
+            if rating > 0:
+                pdf.setFillColor(teal)
+                pdf.roundRect(
+                    bar_x, bar_y, bar_width * min(float(rating), 5) / 5,
+                    5, 2, fill=1, stroke=0
                 )
 
-                y -= 14
+    section_y = card_y - 30
+    pdf.setFillColor(ink)
+    pdf.setFont("Helvetica-Bold", 13)
+    pdf.drawString(margin, section_y, "Feedback received")
+    pdf.setFillColor(muted)
+    pdf.setFont("Helvetica", 8.5)
+    pdf.drawRightString(width - margin, section_y, f"{total_feedback} entries")
+    y = section_y - 18
 
-            y -= 20
+    if not feedback:
+        pdf.setFillColor(pale)
+        pdf.setStrokeColor(border)
+        pdf.roundRect(margin, y - 52, width - 2 * margin, 52, 7, fill=1, stroke=1)
+        pdf.setFillColor(muted)
+        pdf.setFont("Helvetica", 10)
+        pdf.drawString(margin + 14, y - 30, "No feedback has been received yet.")
+    else:
+        for index, item in enumerate(feedback, start=1):
+            comment_lines = wrap_pdf_text(
+                item["comment"], "Helvetica", 9.5, width - 2 * margin - 28
+            )
+            first_segment = True
+
+            while first_segment or comment_lines:
+                header_height = 82 if first_segment else 66
+                available_height = y - content_bottom
+                if header_height + 14 > available_height and y < height - 160:
+                    y = next_page()
+                    continue
+
+                max_lines = max(1, int((available_height - header_height) // 14))
+                lines_for_page = comment_lines[:max_lines]
+                card_height = header_height + len(lines_for_page) * 14
+                card_top = y
+                card_bottom = card_top - card_height
+
+                pdf.setFillColor(HexColor("#FFFFFF"))
+                pdf.setStrokeColor(border)
+                pdf.roundRect(
+                    margin, card_bottom, width - 2 * margin, card_height,
+                    7, fill=1, stroke=1
+                )
+                pdf.setFillColor(teal)
+                pdf.roundRect(
+                    margin, card_top - 4, width - 2 * margin, 4,
+                    2, fill=1, stroke=0
+                )
+                pdf.setFillColor(ink)
+                pdf.setFont("Helvetica-Bold", 9)
+                label = f"FEEDBACK {index:02d}"
+                if not first_segment:
+                    label += " - CONTINUED"
+                pdf.drawString(margin + 13, card_top - 21, label)
+
+                if first_segment:
+                    pdf.setFillColor(gold)
+                    pdf.setFont("Helvetica-Bold", 9)
+                    pdf.drawRightString(
+                        width - margin - 13, card_top - 21,
+                        f'{item["rating"]} / 5'
+                    )
+                    pdf.setFillColor(muted)
+                    pdf.setFont("Helvetica", 8.5)
+                    pdf.drawString(
+                        margin + 13, card_top - 39,
+                        f'Type: {item["feedback_type"]}    |    Date: {item["created_at"]}'
+                    )
+                    pdf.setFillColor(ink)
+                    pdf.setFont("Helvetica-Bold", 8)
+                    pdf.drawString(margin + 13, card_top - 57, "COMMENT")
+                    line_y = card_top - 73
+                else:
+                    pdf.setFillColor(muted)
+                    pdf.setFont("Helvetica-Bold", 8)
+                    pdf.drawString(margin + 13, card_top - 42, "COMMENT CONTINUED")
+                    line_y = card_top - 58
+
+                pdf.setFillColor(ink)
+                pdf.setFont("Helvetica", 9.5)
+                for line in lines_for_page:
+                    pdf.drawString(margin + 13, line_y, line)
+                    line_y -= 14
+
+                comment_lines = comment_lines[len(lines_for_page):]
+                first_segment = False
+                y = card_bottom - 10
+                if comment_lines:
+                    y = next_page()
 
     pdf.save()
 
